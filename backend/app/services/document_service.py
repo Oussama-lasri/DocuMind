@@ -1,6 +1,9 @@
 from app.schemas.document import DocumentUpload
 from app.utils.document_processing_service import DocumentProcessingService
 import os
+from app.core.database import DbSession
+from app.models.document import Document
+from app.repositories.document_repository import DocumentRepository
 
 class DocumentService:
     
@@ -23,6 +26,10 @@ class DocumentService:
             "document_id":"1",
             "filename": document.filename,
         }
+        print(f"Built metadata: {metadata}")
+        print(f"Storing documents in persistent storage for {document.filename}")
+        self.create_document(document, user_id="1")
+        
         docs_with_metadata = DocumentProcessingService.add_metadata(docs, metadata)
         print(f"Added metadata to documents: {metadata}")
         
@@ -33,6 +40,17 @@ class DocumentService:
         print(f"Added chunk metadata to {len(chunks_with_metadata)} chunks")
         
         DocumentProcessingService.store_documents(chunks_with_metadata, store_name=document.filename)
+        print(f"Stored documents in persistent storage for {document.filename}")
     
-    def save_documents(self, documents, metadata):
-        pass
+    def create_document(self, document: Document , user_id):
+        repository = DocumentRepository(DbSession())
+        document = Document(
+            user_id=user_id,
+            filename=document.filename,
+            file_path=document.filename,
+            content_type=document.content_type,
+            # file_size=document.file_size,
+            status="processing",
+            extracted_text=None
+        )
+        return repository.create_document(document)

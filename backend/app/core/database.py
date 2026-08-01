@@ -3,7 +3,7 @@ from typing import Annotated
 from dotenv import load_dotenv
 from fastapi import Depends
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, relationship, sessionmaker , Session
+from sqlalchemy.orm import declarative_base, sessionmaker , Session
 
 
 
