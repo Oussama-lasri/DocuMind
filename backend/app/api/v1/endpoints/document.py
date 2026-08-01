@@ -1,16 +1,37 @@
-from fastapi import APIRouter, HTTPException
-from app.schemas.document import DocumentUpload, DocumentList, DocumentResponse
+import shutil
+import tempfile
 
+from fastapi import APIRouter, HTTPException , UploadFile, File
+from app.schemas.document import DocumentUpload, DocumentList, DocumentResponse
+from app.services.document_service import DocumentService
+import os
 
 
 router = APIRouter()
+document_service = DocumentService()
 
 @router.post("/upload")
-async def upload_documents(request: DocumentUpload):
+async def upload_documents(file: UploadFile = File(...)):
     try:
-        print(f"Received document upload request: {request}")
-        # Here you would handle the document upload logic, e.g., saving the file, processing it, etc.
-        return {"message": "Document uploaded successfully", "filename": request.filename}
+        UPLOAD_DIR = "temp"
+        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        try:
+            print(f"Received document upload request: {file}")
+            
+            extension = os.path.splitext(
+                        file.filename
+                    )[1].lower()
+            file_path = f"temp/{file.filename}"
+            with open(file_path, "wb") as f:
+                f.write(await file.read())
+            document_service.ingest_document(DocumentUpload(filename=file_path, content_type=file.content_type))
+        except Exception as e:
+            print(f"Error occurred while processing file {file.filename}: {e}")
+
+            
+            
+
+        return {"message": "Document uploaded successfully", "filename": file}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
