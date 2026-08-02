@@ -58,8 +58,8 @@ class DocumentProcessingService:
             raise ValueError(f"Unsupported splitting strategy: {strategy}")
         
     @staticmethod
-    def split_documents(documents: list[Document], strategy: str = "recursive") -> list[Document]:
-        splitter = DocumentProcessingService().get_strategy(strategy)()
+    def split_documents(documents: list[Document], chunk_size: int = 1000, chunk_overlap: int = 100, strategy: str = "recursive") -> list[Document]:
+        splitter = DocumentProcessingService().get_strategy(strategy)(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
         chunks = []
         for doc in documents:
             doc_chunks = splitter.split_documents([doc])

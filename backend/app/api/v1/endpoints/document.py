@@ -6,6 +6,7 @@ from app.schemas.document import DocumentUpload, DocumentList, DocumentResponse
 from app.services.document_service import DocumentService
 from app.core.database import DbSession
 import os
+import pprint
 
 
 router = APIRouter()
@@ -20,14 +21,14 @@ async def upload_documents(
         os.makedirs(UPLOAD_DIR, exist_ok=True)
         try:
             print(f"Received document upload request: {file}")
-            
+            pprint.pprint(file)
             extension = os.path.splitext(
                         file.filename
                     )[1].lower()
             file_path = f"temp/{file.filename}"
             with open(file_path, "wb") as f:
                 f.write(await file.read())
-            document_service.ingest_document(DocumentUpload(filename=file_path, content_type=file.content_type), db=db)
+            document_service.ingest_document(file_path=file_path, document=file, db=db)
         except Exception as e:
             print(f"Error occurred while processing file {file.filename}: {e}")
 

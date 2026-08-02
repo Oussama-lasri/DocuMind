@@ -1,3 +1,5 @@
+from distributed import UploadFile
+
 from app.schemas.document import DocumentUpload
 from app.utils.document_processing_service import DocumentProcessingService
 import os
@@ -11,18 +13,18 @@ class DocumentService:
         self.embeddings = None  # Initialize embeddings here
         self.db_dir = None  # Initialize database directory here
 
-    def ingest_document(self, document , db: DbSession):
+    def ingest_document(self, file_path: str, document: UploadFile, db: DbSession):
         print(f"\n=== ingest document ===")
-        print(f"File path: {document.filename}")
+        print(f"File path: {file_path}")
         # print(f"User ID: {document.user_id}")
         
         
-        docs = DocumentProcessingService.load_document(document.filename)
-        print(f"Loaded {len(docs)} documents from {document.filename}")
+        docs = DocumentProcessingService.load_document(file_path)
+        print(f"Loaded {len(docs)} documents from {file_path}")
         
          
-        print(f"Storing documents in persistent storage for {document.filename}")
-        document_saved: Document = self.create_document(document, user_id="1", db=db)
+        print(f"Storing documents in persistent storage for {file_path}")
+        document_saved: Document = self.create_document(document, user_id="1", file_path=file_path, db=db)
         
         # 2. Build metadata
         metadata = {
@@ -34,7 +36,7 @@ class DocumentService:
         docs_with_metadata = DocumentProcessingService.add_metadata(docs, metadata)
         print(f"Added metadata to documents: {metadata}")
         
-        chunks = DocumentProcessingService.split_documents(docs_with_metadata, strategy="recursive")
+        chunks = DocumentProcessingService.split_documents(docs_with_metadata, chunk_size=1000, chunk_overlap=100, strategy="recursive")
         print(f"Split documents into {len(chunks)} chunks")
         
         chunks_with_metadata = DocumentProcessingService.add_chunk_metadata(chunks)
@@ -44,14 +46,14 @@ class DocumentService:
         DocumentProcessingService.store_documents(chunks_with_metadata, store_name=document.filename)
         print(f"Stored documents in persistent storage for {document.filename}")
     
-    def create_document(self, document: Document , user_id, db: DbSession):
+    def create_document(self, document: Document , user_id,file_path , db: DbSession):
         repository = DocumentRepository(db)
         document = Document(
             user_id=user_id,
             filename=document.filename,
-            file_path=document.filename,
-            content_type=document.content_type,
-            # file_size=document.file_size,
+            file_path=file_path,
+            # content_type=document.content_type,
+            file_size=document.size,
             status="processing",
             extracted_text=None
         )

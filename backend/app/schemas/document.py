@@ -5,6 +5,7 @@ from datetime import datetime
 class DocumentUpload(BaseModel):
     filename: str
     content_type: str
+    file_path: Optional[str] = None
 
 class DocumentResponse(BaseModel):
     id: str
