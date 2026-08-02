@@ -2,3 +2,10 @@ fastapi
 uvicorn
 python-dotenv
 huggingface_hub
+chromadb
+langchain
+pinecone-client
+openai
+langchain-text-splitters
+pydantic
+tiktoken
