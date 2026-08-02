@@ -1,17 +1,20 @@
 import shutil
 import tempfile
 
-from fastapi import APIRouter, HTTPException , UploadFile, File
+from fastapi import APIRouter, HTTPException , UploadFile, File , status
 from app.schemas.document import DocumentUpload, DocumentList, DocumentResponse
 from app.services.document_service import DocumentService
+from app.core.database import DbSession
 import os
 
 
 router = APIRouter()
 document_service = DocumentService()
 
-@router.post("/upload")
-async def upload_documents(file: UploadFile = File(...)):
+@router.post("/upload" , status_code=status.HTTP_201_CREATED)
+async def upload_documents(
+    db: DbSession,
+    file: UploadFile = File(...)):
     try:
         UPLOAD_DIR = "temp"
         os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -24,7 +27,7 @@ async def upload_documents(file: UploadFile = File(...)):
             file_path = f"temp/{file.filename}"
             with open(file_path, "wb") as f:
                 f.write(await file.read())
-            document_service.ingest_document(DocumentUpload(filename=file_path, content_type=file.content_type))
+            document_service.ingest_document(DocumentUpload(filename=file_path, content_type=file.content_type), db=db)
         except Exception as e:
             print(f"Error occurred while processing file {file.filename}: {e}")
 

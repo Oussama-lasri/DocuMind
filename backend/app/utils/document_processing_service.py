@@ -68,7 +68,7 @@ class DocumentProcessingService:
 
     @classmethod
     def store_documents(cls,docs, store_name):  
-        store_name = store_name.split("/")[-1].split(".")[0]  # Extract the base name without extension
+        # store_name = store_name.split("/")[-1].split(".")[0]  # Extract the base name without extension
         print(f"\n=== store documents ===")
         persistent_directory = os.path.join(cls.db_dir, store_name)
         if persistent_directory is None:

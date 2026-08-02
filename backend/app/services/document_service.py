@@ -11,7 +11,7 @@ class DocumentService:
         self.embeddings = None  # Initialize embeddings here
         self.db_dir = None  # Initialize database directory here
 
-    def ingest_document(self, document):
+    def ingest_document(self, document , db: DbSession):
         print(f"\n=== ingest document ===")
         print(f"File path: {document.filename}")
         # print(f"User ID: {document.user_id}")
@@ -28,7 +28,7 @@ class DocumentService:
         }
         print(f"Built metadata: {metadata}")
         print(f"Storing documents in persistent storage for {document.filename}")
-        self.create_document(document, user_id="1")
+        self.create_document(document, user_id="1", db=db)
         
         docs_with_metadata = DocumentProcessingService.add_metadata(docs, metadata)
         print(f"Added metadata to documents: {metadata}")
@@ -42,8 +42,8 @@ class DocumentService:
         DocumentProcessingService.store_documents(chunks_with_metadata, store_name=document.filename)
         print(f"Stored documents in persistent storage for {document.filename}")
     
-    def create_document(self, document: Document , user_id):
-        repository = DocumentRepository(DbSession())
+    def create_document(self, document: Document , user_id, db: DbSession):
+        repository = DocumentRepository(db)
         document = Document(
             user_id=user_id,
             filename=document.filename,
