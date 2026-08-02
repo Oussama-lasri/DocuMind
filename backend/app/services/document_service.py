@@ -20,16 +20,17 @@ class DocumentService:
         docs = DocumentProcessingService.load_document(document.filename)
         print(f"Loaded {len(docs)} documents from {document.filename}")
         
-         # 2. Build metadata
+         
+        print(f"Storing documents in persistent storage for {document.filename}")
+        document_saved: Document = self.create_document(document, user_id="1", db=db)
+        
+        # 2. Build metadata
         metadata = {
             "user_id": "1",
-            "document_id":"1",
+            "document_id": document_saved.id,
             "filename": document.filename,
         }
         print(f"Built metadata: {metadata}")
-        print(f"Storing documents in persistent storage for {document.filename}")
-        self.create_document(document, user_id="1", db=db)
-        
         docs_with_metadata = DocumentProcessingService.add_metadata(docs, metadata)
         print(f"Added metadata to documents: {metadata}")
         
@@ -38,6 +39,7 @@ class DocumentService:
         
         chunks_with_metadata = DocumentProcessingService.add_chunk_metadata(chunks)
         print(f"Added chunk metadata to {len(chunks_with_metadata)} chunks")
+        print(f" chunk metadata to {chunks_with_metadata} chunks")
         
         DocumentProcessingService.store_documents(chunks_with_metadata, store_name=document.filename)
         print(f"Stored documents in persistent storage for {document.filename}")
