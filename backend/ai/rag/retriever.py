@@ -3,9 +3,10 @@
 
 
 from langchain_chroma import Chroma
-from langchain_pinecone import Pinecone
+from langchain_community.vectorstores import FAISS
 
-def get_retriever( retriever: str, embedding , persistent_directory , collection_name) -> BaseRetriever:
+
+def get_retriever( retriever: str, embedding , persistent_directory , collection_name):
     """
     Factory function to get the appropriate retriever based on the retriever_type.
     """

@@ -15,3 +15,5 @@ def get_embedding_model(model_name: str):
             )
     elif model_name == "text-embedding-3-small":
         return OpenAIEmbeddings(model=model_name)
+    else:
+        raise ValueError(f"Unknown embedding model: {model_name}")
