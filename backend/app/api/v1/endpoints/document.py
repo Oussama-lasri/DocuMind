@@ -8,6 +8,8 @@ from app.core.database import DbSession
 import os
 import pprint
 
+from backend.ai.rag.chain import get_documents_from_retriever
+
 
 router = APIRouter()
 document_service = DocumentService()
@@ -76,13 +78,7 @@ async def delete_document(document_id: str):
 async def get_document(document_id: str):
     try:
         # Here you would implement the logic to retrieve the document details from the database
-        document = DocumentResponse(
-            id=document_id,
-            filename="example.pdf",
-            upload_date=datetime.now(),
-            file_size=1024,
-            status="processed"
-        )
+        get_documents_from_retriever()
         return document
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
