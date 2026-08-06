@@ -1,3 +1,4 @@
+from datetime import datetime
 import shutil
 import tempfile
 
@@ -5,10 +6,9 @@ from fastapi import APIRouter, HTTPException , UploadFile, File , status
 from app.schemas.document import DocumentUpload, DocumentList, DocumentResponse
 from app.services.document_service import DocumentService
 from app.core.database import DbSession
+from ai.rag.chain import get_documents_from_retriever
 import os
 import pprint
-
-from backend.ai.rag.chain import get_documents_from_retriever
 
 
 router = APIRouter()
@@ -74,11 +74,26 @@ async def delete_document(document_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/{document_id}")
-async def get_document(document_id: str):
+# @router.get("/{document_id}")
+# async def get_document(document_id: str):
+#     try:
+#         # Here you would implement the logic to retrieve the document details from the database
+#         document = DocumentResponse(
+#             id=document_id,
+#             filename="example.pdf",
+#             upload_date=datetime.now(),
+#             file_size=1024,
+#             status="processed"
+#         )
+#         return document
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@router.get("/search")
+async def search_documents(query: str):
     try:
-        # Here you would implement the logic to retrieve the document details from the database
-        get_documents_from_retriever()
-        return document
+       
+        return get_documents_from_retriever(question=query)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

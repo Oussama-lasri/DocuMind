@@ -9,7 +9,7 @@ def get_retriever( retriever: str, embedding , persistent_directory , collection
     
     
     if retriever == "chroma":
-        Chroma(
+        return Chroma(
             collection_name=collection_name,
             persist_directory=persistent_directory,
             embedding_function=embedding,

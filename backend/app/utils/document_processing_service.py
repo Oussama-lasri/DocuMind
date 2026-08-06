@@ -79,10 +79,18 @@ class DocumentProcessingService:
         try :
             if not os.path.exists(persistent_directory):
                 print(f"\n--- Creating vector store {store_name} ---")
+                # db = Chroma.from_documents(
+                #     documents = docs, 
+                #     embedding = cls.embeddings, 
+                #     persist_directory=persistent_directory,
+                #     collection_name=store_name
+                # )
+                
                 db = Chroma.from_documents(
-                    docs, cls.embeddings, 
-                    persist_directory=persistent_directory,
-                    collection_name=store_name
+                    documents=docs,
+                    embedding=cls.embeddings,
+                    collection_name=store_name,          # filename as collection name, NOT as path
+                    persist_directory="./chroma_db",     # same fixed dir every time
                 )
                 collection = db._collection
                 verification = collection.get(include=['metadatas', 'documents'])

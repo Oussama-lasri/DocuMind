@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.v1.router import api_router
 from app.utils.init_db import create_tables
+from ai.rag.chain import get_documents_from_retriever
 
 app = FastAPI()
 
