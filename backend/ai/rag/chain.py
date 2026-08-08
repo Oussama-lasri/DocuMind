@@ -20,10 +20,21 @@ def get_documents_from_retriever(question: str):
                                         collection_name = "resume-ousama-lasri-fr.pdf").invoke(question)
 
     llm = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite-preview", temperature=0)
-    client = Client()
-    prompt = client.pull_prompt("rlm/rag-prompt")
+    try:
+        client = Client()
+        prompt = client.pull_prompt("rlm/rag-prompt")
+    except Exception:
+        print("Failed to retrieve prompt from LangSmith. Using default prompt.")
+        prompt = """You are a helpful assistant that provides answers based on the provided context. 
+        Use the context to answer the question. If the answer is not in the context, say 'I don't know'."""
+        
+        
+    # client = Client()
+    # prompt = client.pull_prompt("rlm/rag-prompt")
+    print(f"Prompt retrieved from LangSmith: {prompt}")
     # print(f"from generation " + prompt)
     generation_chain = prompt | llm | StrOutputParser()
+    print(f"Generation chain created: {generation_chain}")
     generation = generation_chain.invoke(
         {"question": question, "context": documents}
     )

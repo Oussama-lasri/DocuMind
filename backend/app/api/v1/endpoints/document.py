@@ -94,6 +94,6 @@ async def delete_document(document_id: str):
 async def search_documents(query: str):
     try:
        
-        return get_documents_from_retriever(question=query)
+        return get_documents_from_retriever(question=query)["answer"]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
