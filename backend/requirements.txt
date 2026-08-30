@@ -9,3 +9,12 @@ openai
 langchain-text-splitters
 pydantic
 tiktoken
+langsmith
+langchain-core
+langchain
+langchain-community
+langchain-huggingface
+sentence-transformers
+langchain-google-genai
+langchain-chroma
+langchain-pinecone

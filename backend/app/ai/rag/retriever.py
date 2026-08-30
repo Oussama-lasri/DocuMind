@@ -1,5 +1,8 @@
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
+from langchain_pinecone import Pinecone
+
+
 
 
 def get_retriever( retriever: str, embedding , persistent_directory , collection_name):
@@ -16,6 +19,8 @@ def get_retriever( retriever: str, embedding , persistent_directory , collection
         ).as_retriever()
 
     elif retriever == "pinecone":
+        
+
         return Pinecone(
             index_name=collection_name,
             embedding_function=embedding,
