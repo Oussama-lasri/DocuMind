@@ -1,4 +1,4 @@
-from distributed import UploadFile
+from fastapi import UploadFile
 
 from app.schemas.document import DocumentUpload
 from app.utils.document_processing_service import DocumentProcessingService

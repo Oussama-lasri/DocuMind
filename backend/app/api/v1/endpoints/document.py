@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException , UploadFile, File , status
 from app.schemas.document import DocumentUpload, DocumentList, DocumentResponse
 from app.services.document_service import DocumentService
 from app.core.database import DbSession
-from ai.rag.chain import get_documents_from_retriever
+from app.ai.rag.chain import get_documents_from_retriever
 import os
 import pprint
 
@@ -27,7 +27,8 @@ async def upload_documents(
             extension = os.path.splitext(
                         file.filename
                     )[1].lower()
-            file_path = f"temp/{file.filename}"
+            safe_filename = os.path.basename(file.filename)
+            file_path = os.path.join(UPLOAD_DIR, safe_filename)
             with open(file_path, "wb") as f:
                 f.write(await file.read())
             document_service.ingest_document(file_path=file_path, document=file, db=db)
@@ -37,7 +38,7 @@ async def upload_documents(
             
             
 
-        return {"message": "Document uploaded successfully", "filename": file}
+        return {"message": "Document uploaded successfully", "filename": file.filename}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
