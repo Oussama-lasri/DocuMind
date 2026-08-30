@@ -1,11 +1,14 @@
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel
+
 
 class DocumentUpload(BaseModel):
     filename: str
     content_type: str
     file_path: Optional[str] = None
+
 
 class DocumentResponse(BaseModel):
     id: str
@@ -13,6 +16,7 @@ class DocumentResponse(BaseModel):
     upload_date: datetime
     file_size: int
     status: str = "processed"
+
 
 class DocumentList(BaseModel):
     documents: List[DocumentResponse]

@@ -1,5 +1,5 @@
-from typing import List, TypedDict , Annotated
 import operator
+from typing import Annotated, List, TypedDict
 
 
 class GraphState(TypedDict):

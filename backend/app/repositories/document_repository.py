@@ -1,12 +1,16 @@
 from sqlalchemy.orm import Session
+
 from app.models.document import Document
+
 
 class DocumentRepository:
     def __init__(self, db_session):
         self.db_session = db_session
 
     def get_document_by_id(self, document_id: int):
-        return self.db_session.query(Document).filter(Document.id == document_id).first()
+        return (
+            self.db_session.query(Document).filter(Document.id == document_id).first()
+        )
 
     def create_document(self, document: Document):
         self.db_session.add(document)

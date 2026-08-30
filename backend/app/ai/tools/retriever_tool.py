@@ -4,7 +4,6 @@ from app.ai.embeddings.embedding_models import get_embedding_model
 from app.ai.rag.retriever import get_retriever
 
 
-
 @tool
 def search_documents(query: str, collection_name: str) -> str:
     """

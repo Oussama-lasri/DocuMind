@@ -18,3 +18,5 @@ sentence-transformers
 langchain-google-genai
 langchain-chroma
 langchain-pinecone
+black
+isort

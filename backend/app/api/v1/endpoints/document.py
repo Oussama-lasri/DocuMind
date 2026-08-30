@@ -1,32 +1,29 @@
-from datetime import datetime
-import shutil
-import tempfile
-
-from fastapi import APIRouter, HTTPException , UploadFile, File , status
-from app.schemas.document import DocumentUpload, DocumentList, DocumentResponse
-from app.services.document_service import DocumentService
-from app.core.database import DbSession
-from app.ai.rag.chain import get_documents_from_retriever
 import os
 import pprint
+import shutil
+import tempfile
+from datetime import datetime
 
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
+
+from app.ai.rag.chain import get_documents_from_retriever
+from app.core.database import DbSession
+from app.schemas.document import DocumentList, DocumentResponse, DocumentUpload
+from app.services.document_service import DocumentService
 
 router = APIRouter()
 document_service = DocumentService()
 
-@router.post("/upload" , status_code=status.HTTP_201_CREATED)
-async def upload_documents(
-    db: DbSession,
-    file: UploadFile = File(...)):
+
+@router.post("/upload", status_code=status.HTTP_201_CREATED)
+async def upload_documents(db: DbSession, file: UploadFile = File(...)):
     try:
         UPLOAD_DIR = "temp"
         os.makedirs(UPLOAD_DIR, exist_ok=True)
         try:
             print(f"Received document upload request: {file}")
             pprint.pprint(file)
-            extension = os.path.splitext(
-                        file.filename
-                    )[1].lower()
+            extension = os.path.splitext(file.filename)[1].lower()
             safe_filename = os.path.basename(file.filename)
             file_path = os.path.join(UPLOAD_DIR, safe_filename)
             with open(file_path, "wb") as f:
@@ -35,12 +32,10 @@ async def upload_documents(
         except Exception as e:
             print(f"Error occurred while processing file {file.filename}: {e}")
 
-            
-            
-
         return {"message": "Document uploaded successfully", "filename": file.filename}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/list", response_model=DocumentList)
 async def list_documents():
@@ -52,13 +47,14 @@ async def list_documents():
                 filename="example.pdf",
                 upload_date=datetime.now(),
                 file_size=1024,
-                status="processed"
+                status="processed",
             )
         ]
         return DocumentList(documents=documents, total=len(documents))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @router.get("/download/{document_id}")
 async def download_document(document_id: str):
     try:
@@ -67,6 +63,7 @@ async def download_document(document_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.delete("/delete/{document_id}")
 async def delete_document(document_id: str):
     try:
@@ -74,6 +71,7 @@ async def delete_document(document_id: str):
         return {"message": f"Document {document_id} deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # @router.get("/{document_id}")
 # async def get_document(document_id: str):
@@ -89,12 +87,12 @@ async def delete_document(document_id: str):
 #         return document
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
-    
-    
+
+
 @router.get("/search")
 async def search_documents(query: str):
     try:
-       
+
         return get_documents_from_retriever(question=query)["answer"]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

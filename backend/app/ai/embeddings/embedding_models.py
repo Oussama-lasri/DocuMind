@@ -1,8 +1,7 @@
-
-
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import OpenAIEmbeddings
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
 
 def get_embedding_model(provider: str):
     """
@@ -11,9 +10,9 @@ def get_embedding_model(provider: str):
     if provider == "HuggingFaceEmbeddings":
         return HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2",
-            model_kwargs={'device': 'cpu'},         
-            encode_kwargs={'normalize_embeddings': True}  
-            )
+            model_kwargs={"device": "cpu"},
+            encode_kwargs={"normalize_embeddings": True},
+        )
     elif provider == "OpenAIEmbeddings":
         return OpenAIEmbeddings(model="text-embedding-3-small")
     elif provider == "GoogleGenerativeAIEmbeddings":

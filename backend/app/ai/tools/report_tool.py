@@ -18,7 +18,9 @@ def generate_report(title: str, content: str) -> str:
         content: The full report body text.
     """
     os.makedirs(REPORTS_DIR, exist_ok=True)
-    safe_title = "".join(c if c.isalnum() or c in (" ", "_", "-") else "" for c in title)
+    safe_title = "".join(
+        c if c.isalnum() or c in (" ", "_", "-") else "" for c in title
+    )
     filename = f"{REPORTS_DIR}/{safe_title.replace(' ', '_')}_{datetime.now():%Y%m%d%H%M%S}.txt"
 
     with open(filename, "w", encoding="utf-8") as f:

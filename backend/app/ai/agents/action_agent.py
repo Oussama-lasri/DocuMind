@@ -1,9 +1,10 @@
+from pprint import pprint
+
 from langchain_core.messages import SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from app.ai.state.state import GraphState
 from app.ai.tools.report_tool import generate_report
-from pprint import pprint
 
 ACTION_PROMPT = (
     "You are an action agent. Use the generate_report tool when the user "
@@ -24,7 +25,14 @@ def action_agent_node(state: GraphState) -> dict:
 
 print("Action agent is ready to handle requests.")
 result = action_agent_node(
-    {"messages": [{"role": "user", "content": "Please generate a report based on the research findings."}]}
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "Please generate a report based on the research findings.",
+            }
+        ]
+    }
 )
 print("Action agent output:")
 print(result)

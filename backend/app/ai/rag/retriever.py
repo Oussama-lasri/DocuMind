@@ -3,14 +3,11 @@ from langchain_community.vectorstores import FAISS
 from langchain_pinecone import Pinecone
 
 
-
-
-def get_retriever( retriever: str, embedding , persistent_directory , collection_name):
+def get_retriever(retriever: str, embedding, persistent_directory, collection_name):
     """
     Factory function to get the appropriate retriever based on the retriever_type.
     """
-    
-    
+
     if retriever == "chroma":
         return Chroma(
             collection_name=collection_name,
@@ -19,7 +16,6 @@ def get_retriever( retriever: str, embedding , persistent_directory , collection
         ).as_retriever()
 
     elif retriever == "pinecone":
-        
 
         return Pinecone(
             index_name=collection_name,
@@ -27,4 +23,4 @@ def get_retriever( retriever: str, embedding , persistent_directory , collection
         ).as_retriever()
 
     else:
-        raise ValueError(f"Unknown retriever: {retriever}") 
+        raise ValueError(f"Unknown retriever: {retriever}")

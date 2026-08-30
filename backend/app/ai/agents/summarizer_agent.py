@@ -13,5 +13,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite-preview", temperature=
 
 
 def summarizer_agent_node(state: AgentState) -> dict:
-    response = llm.invoke([SystemMessage(content=SUMMARIZER_PROMPT)] + state["messages"])
+    response = llm.invoke(
+        [SystemMessage(content=SUMMARIZER_PROMPT)] + state["messages"]
+    )
     return {"messages": [response]}
