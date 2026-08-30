@@ -71,26 +71,18 @@ class DocumentProcessingService:
         # store_name = store_name.split("/")[-1].split(".")[0]  # Extract the base name without extension
         print(f"\n=== store documents ===")
         persistent_directory = os.path.join(cls.db_dir, store_name)
-        if persistent_directory is None:
-            os.makedirs(cls.db_dir, exist_ok=True)
+        os.makedirs(cls.db_dir, exist_ok=True)
         if not docs:
             print("ERROR: No documents provided to store!")
             return
-        try :
+        try:
             if not os.path.exists(persistent_directory):
                 print(f"\n--- Creating vector store {store_name} ---")
-                # db = Chroma.from_documents(
-                #     documents = docs, 
-                #     embedding = cls.embeddings, 
-                #     persist_directory=persistent_directory,
-                #     collection_name=store_name
-                # )
-                
                 db = Chroma.from_documents(
                     documents=docs,
                     embedding=cls.embeddings,
                     collection_name=store_name,          # filename as collection name, NOT as path
-                    persist_directory="./chroma_db",     # same fixed dir every time
+                    persist_directory=persistent_directory,
                 )
                 collection = db._collection
                 verification = collection.get(include=['metadatas', 'documents'])
