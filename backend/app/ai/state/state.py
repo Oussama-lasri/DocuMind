@@ -1,18 +1,8 @@
+from langgraph.graph import MessagesState
+from typing import Annotated, List
 import operator
-from typing import Annotated, List, TypedDict
 
-
-class GraphState(TypedDict):
-    """
-    Represents the state of our graph.
-
-    Attributes:
-        question: question
-        generation: LLM generation
-        documents: list of documents
-    """
-
-    question: Annotated[str, lambda x, y: y]
-    generation: str
-    documents: Annotated[List[str], operator.add]
+class GraphState(MessagesState):
+    documents: Annotated[List[dict], operator.add]
     language: str
+    next_agent: str                                  
