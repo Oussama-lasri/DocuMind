@@ -3,7 +3,7 @@ from datetime import datetime
 
 from langchain_core.tools import tool
 
-REPORTS_DIR = "reports"
+REPORTS_DIR = r"C:\Users\ousama\DocuMind\backend\app\ai\reports"
 
 
 @tool
@@ -27,3 +27,5 @@ def generate_report(title: str, content: str) -> str:
         f.write(f"{title}\n\n{content}")
 
     return f"Report generated: {filename}"
+
+
