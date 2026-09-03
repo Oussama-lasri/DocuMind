@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv() 
 from typing import Literal
 
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -28,7 +30,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite-preview", temperature=
 router_llm = llm.with_structured_output(RouteDecision)
 
 
-def router_node(state: GraphState) -> dict:
+def router_agent_node(state: GraphState) -> dict:
     last_message = state["messages"][-1]
     decision: RouteDecision = router_llm.invoke(
         [
