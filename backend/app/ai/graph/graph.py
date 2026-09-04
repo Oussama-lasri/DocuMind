@@ -1,17 +1,11 @@
 from dotenv import load_dotenv
-
+from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
-from langgraph.graph import StateGraph, END, START
 
+from app.ai.agents import (action_agent, research_agent, router_agent,
+                           summarizer_agent)
 from app.ai.state.state import GraphState
-from app.ai.agents import (
-    action_agent,
-    research_agent,
-    summarizer_agent,
-    router_agent,
-)
-from app.ai.tools import report_tool, ocr_tool, retriever_tool
-
+from app.ai.tools import ocr_tool, report_tool, retriever_tool
 
 load_dotenv()
 

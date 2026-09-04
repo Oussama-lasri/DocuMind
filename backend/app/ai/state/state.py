@@ -1,6 +1,8 @@
-from langgraph.graph import MessagesState
-from typing import Annotated, List
 import operator
+from typing import Annotated, List
+
+from langgraph.graph import MessagesState
+
 
 class GraphState(MessagesState):
     documents: Annotated[List[dict], operator.add]
