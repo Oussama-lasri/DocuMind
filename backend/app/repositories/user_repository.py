@@ -1,5 +1,6 @@
 from app.models.user import User
 
+
 class UserRepository:
     def __init__(self, db_session):
         self.db = db_session
