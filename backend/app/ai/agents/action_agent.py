@@ -1,11 +1,11 @@
 from dotenv import load_dotenv
+
 load_dotenv() 
 from langchain_core.messages import SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from app.ai.state.state import GraphState
 from app.ai.tools.report_tool import generate_report
-
 
 ACTION_PROMPT = (
     "You are an action agent. Use the generate_report tool when the user "
