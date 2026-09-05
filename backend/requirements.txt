@@ -20,3 +20,10 @@ langchain-chroma
 langchain-pinecone
 black
 isort
+psycopg2
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
+jwt
+pyjwt
+pypdf

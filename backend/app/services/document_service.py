@@ -7,6 +7,7 @@ from app.models.document import Document
 from app.repositories.document_repository import DocumentRepository
 from app.schemas.document import DocumentUpload
 from app.utils.document_processing_service import DocumentProcessingService
+from app.schemas.user import UserResponse
 
 
 class DocumentService:
@@ -15,7 +16,7 @@ class DocumentService:
         self.embeddings = None  # Initialize embeddings here
         self.db_dir = None  # Initialize database directory here
 
-    def ingest_document(self, file_path: str, document: UploadFile, db: DbSession):
+    def ingest_document(self, file_path: str, document: UploadFile, db: DbSession , user: UserResponse):
         print(f"\n=== ingest document ===")
         print(f"File path: {file_path}")
         # print(f"User ID: {document.user_id}")
@@ -25,12 +26,12 @@ class DocumentService:
 
         print(f"Storing documents in persistent storage for {file_path}")
         document_saved: Document = self.create_document(
-            document, user_id="1", file_path=file_path, db=db
+            document, user_id=user.id, file_path=file_path, db=db
         )
 
         # 2. Build metadata
         metadata = {
-            "user_id": "1",
+            "user_id": user.id,
             "document_id": document_saved.id,
             "filename": document.filename,
         }
@@ -64,3 +65,9 @@ class DocumentService:
             extracted_text=None,
         )
         return repository.create_document(document)
+    
+    def get_chunk_by_id(self, document_id: int, db: DbSession):
+        repository = DocumentRepository(db)
+        doc =  repository.get_document_by_id(document_id)
+        if doc:
+            DocumentProcessingService.get_chunk_by_id(doc)

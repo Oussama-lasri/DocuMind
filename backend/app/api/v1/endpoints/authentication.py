@@ -4,12 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core.database import DbSession
-from app.schemas.user import UserCreate, UserResponse
-from app.services.authentication_service import register_user, login_user
-from app.utils.jwt_service import JwtService
 from app.schemas.token import Token
-
-
+from app.schemas.user import UserCreate, UserResponse
+from app.services.authentication_service import login_user, register_user
+from app.utils.jwt_service import JwtService
 
 router = APIRouter()
 def get_jwt_service() -> JwtService:

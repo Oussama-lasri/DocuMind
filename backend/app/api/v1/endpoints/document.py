@@ -3,20 +3,29 @@ import pprint
 import shutil
 import tempfile
 from datetime import datetime
+from typing import Annotated
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.security import OAuth2PasswordBearer
 
 from app.ai.rag.chain import get_documents_from_retriever
 from app.core.database import DbSession
 from app.schemas.document import DocumentList, DocumentResponse, DocumentUpload
 from app.services.document_service import DocumentService
+from app.utils.dependencies import get_current_user
 
 router = APIRouter()
 document_service = DocumentService()
-
+# token: Annotated[
+#     str,
+#     Depends(OAuth2PasswordBearer(...))
+# ]
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
-async def upload_documents(db: DbSession, file: UploadFile = File(...)):
+async def upload_documents(
+                            db: DbSession,
+                            current_user = Depends(get_current_user),
+                            file: UploadFile = File(...)):
     try:
         UPLOAD_DIR = "temp"
         os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -28,7 +37,7 @@ async def upload_documents(db: DbSession, file: UploadFile = File(...)):
             file_path = os.path.join(UPLOAD_DIR, safe_filename)
             with open(file_path, "wb") as f:
                 f.write(await file.read())
-            document_service.ingest_document(file_path=file_path, document=file, db=db)
+            document_service.ingest_document(file_path=file_path, document=file, db=db, user=current_user)
         except Exception as e:
             print(f"Error occurred while processing file {file.filename}: {e}")
 

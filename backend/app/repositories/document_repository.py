@@ -1,5 +1,3 @@
-from sqlalchemy.orm import Session
-
 from app.models.document import Document
 
 
