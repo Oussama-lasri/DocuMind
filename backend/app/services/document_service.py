@@ -1,73 +1,204 @@
-import os
+import logging
 
 from fastapi import UploadFile
 
 from app.core.database import DbSession
 from app.models.document import Document
 from app.repositories.document_repository import DocumentRepository
-from app.schemas.document import DocumentUpload
-from app.utils.document_processing_service import DocumentProcessingService
 from app.schemas.user import UserResponse
+from app.utils.document_processing_service import (
+    DocumentProcessingService,
+)
+from app.core.exceptions import (
+    DocumentError,
+    DocumentProcessingError,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentService:
 
     def __init__(self):
-        self.embeddings = None  # Initialize embeddings here
-        self.db_dir = None  # Initialize database directory here
 
-    def ingest_document(self, file_path: str, document: UploadFile, db: DbSession , user: UserResponse):
-        print(f"\n=== ingest document ===")
-        print(f"File path: {file_path}")
-        # print(f"User ID: {document.user_id}")
+        self.embeddings = None
+        self.db_dir = None
 
-        docs = DocumentProcessingService.load_document(file_path)
-        print(f"Loaded {len(docs)} documents from {file_path}")
-
-        print(f"Storing documents in persistent storage for {file_path}")
-        document_saved: Document = self.create_document(
-            document, user_id=user.id, file_path=file_path, db=db
+        self.processing_service = DocumentProcessingService(
+            embeddings=self.embeddings,
+            db_dir=self.db_dir,
         )
 
-        # 2. Build metadata
-        metadata = {
-            "user_id": user.id,
-            "document_id": document_saved.id,
-            "filename": document.filename,
-        }
-        print(f"Built metadata: {metadata}")
-        docs_with_metadata = DocumentProcessingService.add_metadata(docs, metadata)
-        print(f"Added metadata to documents: {metadata}")
+    def ingest_document(
+        self,
+        file_path: str,
+        document: UploadFile,
+        db: DbSession,
+        user: UserResponse,
+    ):
 
-        chunks = DocumentProcessingService.split_documents(
-            docs_with_metadata, chunk_size=1000, chunk_overlap=100, strategy="recursive"
-        )
-        print(f"Split documents into {len(chunks)} chunks")
+        document_saved = None
 
-        chunks_with_metadata = DocumentProcessingService.add_chunk_metadata(chunks)
-        print(f"Added chunk metadata to {len(chunks_with_metadata)} chunks")
-        print(f" chunk metadata to {chunks_with_metadata} chunks")
+        try:
 
-        DocumentProcessingService.store_documents(
-            chunks_with_metadata, store_name=document.filename
-        )
-        print(f"Stored documents in persistent storage for {document.filename}")
+            logger.info(
+                "Starting ingestion: filename=%s user_id=%s",
+                document.filename,
+                user.id,
+            )
 
-    def create_document(self, document: Document, user_id, file_path, db: DbSession):
-        repository = DocumentRepository(db)
-        document = Document(
-            user_id=user_id,
-            filename=document.filename,
-            file_path=file_path,
-            # content_type=document.content_type,
-            file_size=document.size,
-            status="processing",
-            extracted_text=None,
-        )
-        return repository.create_document(document)
-    
-    def get_chunk_by_id(self, document_id: int, db: DbSession):
-        repository = DocumentRepository(db)
-        doc =  repository.get_document_by_id(document_id)
-        if doc:
-            DocumentProcessingService.get_chunk_by_id(doc)
+            # -----------------------------------------
+            # 1. Load document
+            # -----------------------------------------
+
+            docs = self.processing_service.load_document(
+                file_path
+            )
+
+            logger.info(
+                "Loaded %s documents",
+                len(docs)
+            )
+
+            # -----------------------------------------
+            # 2. Save document metadata in PostgreSQL
+            # -----------------------------------------
+
+            document_saved = self.create_document(
+                document=document,
+                user_id=user.id,
+                file_path=file_path,
+                db=db,
+            )
+
+            logger.info(
+                "Created document database record: id=%s",
+                document_saved.id,
+            )
+
+            # -----------------------------------------
+            # 3. Add metadata
+            # -----------------------------------------
+
+            metadata = {
+                "user_id": user.id,
+                "document_id": document_saved.id,
+                "filename": document.filename,
+            }
+
+            docs = self.processing_service.add_metadata(
+                docs,
+                metadata,
+            )
+
+            # -----------------------------------------
+            # 4. Split
+            # -----------------------------------------
+
+            chunks = self.processing_service.split_documents(
+                docs,
+                chunk_size=1000,
+                chunk_overlap=100,
+                strategy="recursive",
+            )
+
+            logger.info(
+                "Created %s chunks",
+                len(chunks)
+            )
+
+            # -----------------------------------------
+            # 5. Add chunk metadata
+            # -----------------------------------------
+
+            chunks = self.processing_service.add_chunk_metadata(
+                chunks
+            )
+
+            # -----------------------------------------
+            # 6. Store in Chroma
+            # -----------------------------------------
+
+            self.processing_service.store_documents(
+                chunks,
+                document_id=document_saved.id,
+            )
+
+            # -----------------------------------------
+            # 7. Update status
+            # -----------------------------------------
+
+            document_saved.status = "completed"
+
+            db.commit()
+            db.refresh(document_saved)
+
+            logger.info(
+                "Document ingestion completed: id=%s",
+                document_saved.id,
+            )
+
+            return document_saved
+
+        except DocumentError:
+
+            logger.exception(
+                "Document processing failed: filename=%s",
+                document.filename,
+            )
+
+            if document_saved is not None:
+                document_saved.status = "failed"
+                db.commit()
+
+            raise
+
+        except Exception as e:
+
+            logger.exception(
+                "Unexpected document ingestion error"
+            )
+
+            if document_saved is not None:
+                document_saved.status = "failed"
+                db.commit()
+
+            raise DocumentProcessingError(
+                "Unexpected error while processing document."
+            ) from e
+
+    def create_document(
+        self,
+        document: UploadFile,
+        user_id: int,
+        file_path: str,
+        db: DbSession,
+    ):
+
+        try:
+
+            repository = DocumentRepository(db)
+
+            document_entity = Document(
+                user_id=user_id,
+                filename=document.filename,
+                file_path=file_path,
+                file_size=document.size,
+                status="processing",
+                extracted_text=None,
+            )
+
+            return repository.create_document(
+                document_entity
+            )
+
+        except Exception as e:
+
+            logger.exception(
+                "Failed to create document database record"
+            )
+
+            raise DocumentProcessingError(
+                "Failed to create document."
+            ) from e

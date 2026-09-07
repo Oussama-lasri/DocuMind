@@ -26,24 +26,26 @@ async def upload_documents(
                             db: DbSession,
                             current_user = Depends(get_current_user),
                             file: UploadFile = File(...)):
-    try:
+
         UPLOAD_DIR = "temp"
         os.makedirs(UPLOAD_DIR, exist_ok=True)
-        try:
-            print(f"Received document upload request: {file}")
-            pprint.pprint(file)
-            extension = os.path.splitext(file.filename)[1].lower()
-            safe_filename = os.path.basename(file.filename)
-            file_path = os.path.join(UPLOAD_DIR, safe_filename)
-            with open(file_path, "wb") as f:
-                f.write(await file.read())
-            document_service.ingest_document(file_path=file_path, document=file, db=db, user=current_user)
-        except Exception as e:
-            print(f"Error occurred while processing file {file.filename}: {e}")
+   
+        print(f"Received document upload request: {file}")
+        pprint.pprint(file)
+        extension = os.path.splitext(file.filename)[1].lower()
+        safe_filename = os.path.basename(file.filename)
+        file_path = os.path.join(UPLOAD_DIR, safe_filename)
+        with open(file_path, "wb") as f:
+            f.write(await file.read())
+        document = document_service.ingest_document(file_path=file_path, document=file, db=db, user=current_user)
 
-        return {"message": "Document uploaded successfully", "filename": file.filename}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {
+            "message": "Document uploaded successfully",
+            "filename": file.filename,
+            "document_id": document.id,
+            "status": document.status,
+        }
+
 
 
 @router.get("/list", response_model=DocumentList)

@@ -1,113 +1,395 @@
+import logging
 import os
 from typing import List
 
-from langchain_community.document_loaders import (Docx2txtLoader, PyPDFLoader,
-                                                  UnstructuredHTMLLoader)
+from langchain_community.document_loaders import (
+    Docx2txtLoader,
+    PyPDFLoader,
+    UnstructuredHTMLLoader,
+)
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from app.core.exceptions import (
+    DocumentLoadError,
+    DocumentProcessingError,
+    DocumentRetrievalError,
+    DocumentStorageError,
+    UnsupportedFileTypeError,
+)
+
+
+logger = logging.getLogger(__name__)
+
 
 class DocumentProcessingService:
-    db_dir = "chroma_db"
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
+
+    DB_DIR = "chroma_db"
+    COLLECTION_NAME = "documents"
 
     def __init__(self, embeddings=None, db_dir=None):
-        self.embeddings = embeddings or HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-        db_dir = db_dir or "chroma_db"
 
-    def process_document(self, document_path: str) -> dict:
-        pass
+        try:
+            self.embeddings = embeddings or HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            )
+
+            self.db_dir = db_dir or self.DB_DIR
+            self._store = None
+
+        except Exception as e:
+            logger.exception("Failed to initialize document processing service")
+
+            raise DocumentProcessingError(
+                "Failed to initialize document processing service."
+            ) from e
+
+
+
+    def get_store(self) -> Chroma:
+
+        if self._store is None:
+
+            try:
+                os.makedirs(self.db_dir, exist_ok=True)
+
+                self._store = Chroma(
+                    collection_name=self.COLLECTION_NAME,
+                    embedding_function=self.embeddings,
+                    persist_directory=self.db_dir,
+                )
+
+            except Exception as e:
+
+                logger.exception(
+                    "Failed to initialize Chroma vector store"
+                )
+
+                raise DocumentStorageError(
+                    "Failed to initialize vector store."
+                ) from e
+
+        return self._store
+
+ 
 
     @staticmethod
-    def load_document(file_path: str) -> list[Document]:
-        if file_path.endswith(".pdf"):
-            loader = PyPDFLoader(file_path)
-        elif file_path.endswith(".docx"):
-            loader = Docx2txtLoader(file_path)
-        elif file_path.endswith(".html"):
-            loader = UnstructuredHTMLLoader(file_path)
-        else:
-            raise ValueError(f"Unsupported file type: {file_path}")
-        return loader.load()
+    def load_document(file_path: str) -> List[Document]:
+
+        try:
+
+            if not os.path.exists(file_path):
+                raise DocumentLoadError(
+                    f"File does not exist: {file_path}"
+                )
+
+            extension = os.path.splitext(file_path)[1].lower()
+
+            if extension == ".pdf":
+                loader = PyPDFLoader(file_path)
+
+            elif extension == ".docx":
+                loader = Docx2txtLoader(file_path)
+
+            elif extension == ".html":
+                loader = UnstructuredHTMLLoader(file_path)
+
+            else:
+                raise UnsupportedFileTypeError(
+                    f"Unsupported file type: {extension}"
+                )
+
+            documents = loader.load()
+
+            if not documents:
+                raise DocumentLoadError(
+                    "The document contains no readable content."
+                )
+
+            return documents
+
+        except UnsupportedFileTypeError:
+            raise
+
+        except DocumentLoadError:
+            raise
+
+        except Exception as e:
+
+            logger.exception(
+                "Failed to load document: %s",
+                file_path
+            )
+
+            raise DocumentLoadError(
+                "Failed to load document."
+            ) from e
+
+
 
     @staticmethod
-    def add_metadata(documents: List[Document], metadata: dict) -> List[Document]:
-        for doc in documents:
-            doc.metadata.update(metadata)
-        return documents
+    def add_metadata(
+        documents: List[Document],
+        metadata: dict
+    ) -> List[Document]:
+
+        try:
+
+            for doc in documents:
+                doc.metadata.update(metadata)
+
+            return documents
+
+        except Exception as e:
+
+            logger.exception("Failed to add document metadata")
+
+            raise DocumentProcessingError(
+                "Failed to add document metadata."
+            ) from e
+
+  
 
     @staticmethod
-    def add_chunk_metadata(chunks: list[Document]) -> list[Document]:
+    def add_chunk_metadata(
+        chunks: List[Document]
+    ) -> List[Document]:
 
-        total_chunks = len(chunks)
+        try:
 
-        for index, chunk in enumerate(chunks):
+            total_chunks = len(chunks)
 
-            chunk.metadata.update(
-                {
+            for index, chunk in enumerate(chunks):
+
+                chunk.metadata.update({
                     "chunk_index": index,
                     "chunk_count": total_chunks,
                     "chunk_size": len(chunk.page_content),
-                }
-            )
+                })
 
-        return chunks
+            return chunks
 
-    def get_strategy(self, strategy: str):
-        if strategy == "recursive":
-            return RecursiveCharacterTextSplitter
-        #  add more strateges in future
-        else:
-            raise ValueError(f"Unsupported splitting strategy: {strategy}")
+        except Exception as e:
+
+            logger.exception("Failed to add chunk metadata")
+
+            raise DocumentProcessingError(
+                "Failed to add chunk metadata."
+            ) from e
+
+    # ---------------------------------------------------------
+    # Splitting strategy
+    # ---------------------------------------------------------
 
     @staticmethod
+    def get_strategy(strategy: str):
+
+        if strategy == "recursive":
+            return RecursiveCharacterTextSplitter
+
+        raise DocumentProcessingError(
+            f"Unsupported splitting strategy: {strategy}"
+        )
+
+
+
     def split_documents(
-        documents: list[Document],
+        self,
+        documents: List[Document],
         chunk_size: int = 1000,
         chunk_overlap: int = 100,
         strategy: str = "recursive",
-    ) -> list[Document]:
-        splitter = DocumentProcessingService().get_strategy(strategy)(
-            chunk_size=chunk_size, chunk_overlap=chunk_overlap
-        )
-        chunks = []
-        for doc in documents:
-            doc_chunks = splitter.split_documents([doc])
-            chunks.extend(doc_chunks)
-        return chunks
+    ) -> List[Document]:
 
-    @classmethod
-    def store_documents(cls, docs, store_name):
-        # store_name = store_name.split("/")[-1].split(".")[0]  # Extract the base name without extension
-        print(f"\n=== store documents ===")
-        persistent_directory = os.path.join(cls.db_dir, store_name)
-        os.makedirs(cls.db_dir, exist_ok=True)
-        if not docs:
-            print("ERROR: No documents provided to store!")
-            return
         try:
-            if not os.path.exists(persistent_directory):
-                print(f"\n--- Creating vector store {store_name} ---")
-                db = Chroma.from_documents(
-                    documents=docs,
-                    embedding=cls.embeddings,
-                    collection_name=store_name,  # filename as collection name, NOT as path
-                    persist_directory=persistent_directory,
+
+            if not documents:
+                raise DocumentProcessingError(
+                    "No documents provided for splitting."
                 )
-                collection = db._collection
-                verification = collection.get(include=["metadatas", "documents"])
-                print(f"Documents stored: {len(verification['documents'])}")
-                print(f"--- Finished creating vector store {store_name} ---")
-            else:
-                print(
-                    f"Vector store {store_name} already exists. No need to initialize."
+
+            if chunk_size <= 0:
+                raise DocumentProcessingError(
+                    "chunk_size must be greater than 0."
                 )
+
+            if chunk_overlap < 0:
+                raise DocumentProcessingError(
+                    "chunk_overlap cannot be negative."
+                )
+
+            if chunk_overlap >= chunk_size:
+                raise DocumentProcessingError(
+                    "chunk_overlap must be smaller than chunk_size."
+                )
+
+            splitter_class = self.get_strategy(strategy)
+
+            splitter = splitter_class(
+                chunk_size=chunk_size,
+                chunk_overlap=chunk_overlap,
+            )
+
+            chunks = []
+
+            for doc in documents:
+
+                chunks.extend(
+                    splitter.split_documents([doc])
+                )
+
+            if not chunks:
+                raise DocumentProcessingError(
+                    "Document splitting produced no chunks."
+                )
+
+            return chunks
+
+        except DocumentProcessingError:
+            raise
+
         except Exception as e:
-            print(f"ERROR storing documents: {str(e)}")
-            raise e
+
+            logger.exception("Failed to split documents")
+
+            raise DocumentProcessingError(
+                "Failed to split document."
+            ) from e
+
+   
+
+    def store_documents(
+        self,
+        docs: List[Document],
+        document_id: int
+    ):
+
+        if not docs:
+            raise DocumentStorageError(
+                "No documents provided to store."
+            )
+
+        try:
+
+            store = self.get_store()
+
+            # Remove old chunks
+            self.delete_document(document_id)
+
+            ids = [
+                f"{document_id}_{i}"
+                for i in range(len(docs))
+            ]
+
+            store.add_documents(
+                documents=docs,
+                ids=ids,
+            )
+
+            logger.info(
+                "Stored %s chunks for document_id=%s",
+                len(docs),
+                document_id,
+            )
+
+        except DocumentStorageError:
+            raise
+
+        except Exception as e:
+
+            logger.exception(
+                "Failed to store document_id=%s",
+                document_id,
+            )
+
+            raise DocumentStorageError(
+                "Failed to store document."
+            ) from e
+
+ 
+
+    def delete_document(self, document_id: int):
+
+        try:
+
+            store = self.get_store()
+
+            store.delete(
+                where={
+                    "document_id": document_id
+                }
+            )
+
+            logger.info(
+                "Deleted chunks for document_id=%s",
+                document_id
+            )
+
+        except DocumentStorageError:
+            raise
+
+        except Exception as e:
+
+            logger.exception(
+                "Failed to delete document_id=%s",
+                document_id
+            )
+
+            raise DocumentStorageError(
+                "Failed to delete document."
+            ) from e
+
+
+
+    def query(
+        self,
+        query_text: str,
+        user_id: int,
+        document_id: int = None,
+        k: int = 5
+    ):
+
+        try:
+
+            if not query_text.strip():
+                raise DocumentRetrievalError(
+                    "Search query cannot be empty."
+                )
+
+            if k <= 0:
+                raise DocumentRetrievalError(
+                    "k must be greater than 0."
+                )
+
+            store = self.get_store()
+
+            filters = {
+                "user_id": user_id
+            }
+
+            if document_id is not None:
+                filters["document_id"] = document_id
+
+            documents = store.similarity_search(
+                query_text,
+                k=k,
+                filter=filters,
+            )
+
+            return documents
+
+        except DocumentRetrievalError:
+            raise
+
+        except Exception as e:
+
+            logger.exception(
+                "Document retrieval failed for user_id=%s",
+                user_id
+            )
+
+            raise DocumentRetrievalError(
+                "Failed to search documents."
+            ) from e
