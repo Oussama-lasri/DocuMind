@@ -1,4 +1,4 @@
-# 🧠 DocuMind
+# DocuMind
 
 > **A private AI document assistant that lets you upload your documents and interact with them using semantic search, Retrieval-Augmented Generation (RAG), and multi-agent AI workflows.**
 
@@ -10,7 +10,7 @@ The long-term vision is to go beyond document Q&A: **DocuMind is designed as an 
 
 ---
 
-## 🎯 What is DocuMind?
+## What is DocuMind?
 
 Imagine having hundreds of documents:
 
@@ -80,7 +80,7 @@ DocuMind processes your documents, retrieves the most relevant information, and 
 
 ---
 
-# 🚀 Why DocuMind?
+# Why DocuMind?
 
 Traditional chatbots rely primarily on the knowledge encoded in an LLM.
 
@@ -112,9 +112,9 @@ This helps the assistant answer questions using the user's own knowledge base ra
 
 ---
 
-# ✨ Core Features
+# Core Features
 
-## 📄 Document Management
+## Document Management
 
 Upload and process documents to build a personal knowledge base.
 
@@ -161,7 +161,7 @@ This metadata enables document-level and user-level filtering during retrieval.
 
 ---
 
-# 🔎 Semantic Search
+# Semantic Search
 
 DocuMind doesn't rely only on keyword matching.
 
@@ -211,7 +211,7 @@ This is the foundation of DocuMind's RAG system.
 
 ---
 
-# 🧠 Retrieval-Augmented Generation
+# Retrieval-Augmented Generation
 
 DocuMind separates **retrieval** from **generation**.
 
@@ -273,7 +273,7 @@ Complete pipeline:
 
 ---
 
-# 🤖 Multi-Agent Architecture
+# Multi-Agent Architecture
 
 One of the main goals of DocuMind is to move beyond a simple RAG chatbot.
 
@@ -334,7 +334,7 @@ Action Agent
 
 ---
 
-## 🔬 Research Agent
+## Research Agent
 
 The Research Agent is responsible for finding relevant information.
 
@@ -356,7 +356,7 @@ LLM
 
 ---
 
-## 📝 Summarizer Agent
+## Summarizer Agent
 
 The Summarizer Agent focuses on transforming retrieved information into concise and useful summaries.
 
@@ -370,7 +370,7 @@ Potential use cases include:
 
 ---
 
-## ⚙️ Action Agent
+## Action Agent
 
 The Action Agent is designed to perform tasks beyond answering questions.
 
@@ -385,7 +385,7 @@ The architecture can be extended with additional tools over time.
 
 ---
 
-# 🛠️ Tool Calling
+# Tool Calling
 
 DocuMind uses LangChain tools to expose capabilities to AI agents.
 
@@ -432,7 +432,7 @@ This allows DocuMind to evolve from a static RAG pipeline into an **agentic syst
 
 ---
 
-# 🏗️ System Architecture
+# System Architecture
 
 DocuMind follows a layered backend architecture.
 
@@ -479,7 +479,7 @@ DocuMind follows a layered backend architecture.
 
 ---
 
-# 🔄 End-to-End Workflow
+# End-to-End Workflow
 
 ## 1. Upload
 
@@ -583,7 +583,7 @@ Generated Answer
 
 ---
 
-# 🔐 Privacy & Security
+# Privacy & Security
 
 DocuMind is designed around the idea of a **private document knowledge base**.
 
@@ -616,9 +616,9 @@ Only User B's documents
 
 ---
 
-# 🌍 Real-World Use Cases
+# Real-World Use Cases
 
-## 💼 Freelancers & Companies
+## Freelancers & Companies
 
 Upload:
 
@@ -635,7 +635,7 @@ Ask:
 
 ---
 
-## ⚖️ Legal Professionals
+## Legal Professionals
 
 Upload multiple contracts and ask:
 
@@ -647,7 +647,7 @@ Upload multiple contracts and ask:
 
 ---
 
-## 🎓 Students & Researchers
+## Students & Researchers
 
 Upload:
 
@@ -666,7 +666,7 @@ Ask:
 
 ---
 
-## 🏢 SMEs & Administrations
+## SMEs & Administrations
 
 DocuMind can eventually support organizations working with large collections of administrative documents in:
 
@@ -678,7 +678,7 @@ This is particularly relevant for organizations that manage large amounts of mul
 
 ---
 
-# 🌐 Multi-Language Vision
+# Multi-Language Vision
 
 DocuMind is designed to support multilingual document interaction.
 
@@ -707,7 +707,7 @@ Multilingual retrieval and generation can be improved further with multilingual 
 
 ---
 
-# 🧰 Technology Stack
+# Technology Stack
 
 ## Backend
 
@@ -742,7 +742,7 @@ Multilingual retrieval and generation can be improved further with multilingual 
 
 ---
 
-# 📁 Project Structure
+# Project Structure
 
 ```text
 DocuMind/
@@ -783,7 +783,7 @@ DocuMind/
 
 ---
 
-# 🚀 Getting Started
+# Getting Started
 
 ## Prerequisites
 
@@ -868,7 +868,7 @@ Add any additional environment variables required by the selected LLM provider.
 
 ---
 
-# ▶️ Run the Application
+# Run the Application
 
 From the `backend` directory:
 
@@ -890,7 +890,7 @@ http://localhost:8000/docs
 
 ---
 
-# 🔑 Authentication Flow
+# Authentication Flow
 
 DocuMind uses JWT authentication.
 
@@ -920,7 +920,7 @@ Authorization: Bearer <access_token>
 
 ---
 
-# 🔌 API Overview
+# API Overview
 
 Example endpoints:
 
@@ -938,7 +938,7 @@ The API is documented automatically through FastAPI/OpenAPI.
 
 ---
 
-# 🛡️ Error Handling
+# Error Handling
 
 DocuMind uses application-level exceptions to separate business errors from infrastructure failures.
 
@@ -978,7 +978,7 @@ This approach keeps API routes clean and prevents internal implementation detail
 
 ---
 
-# 📊 Observability
+# Observability
 
 DocuMind can use **LangSmith** to trace and monitor LLM and LangChain workflows.
 
@@ -996,14 +996,14 @@ This is particularly useful when debugging complex LangGraph workflows.
 
 ---
 
-# 🧪 Testing
+# Testing
 
 Run tests with:
 
 
 ---
 
-# 🗺️ Roadmap
+# Roadmap
 
 ## Document Intelligence
 
@@ -1065,7 +1065,7 @@ Run tests with:
 
 ---
 
-# 🔮 Future Vision
+# Future Vision
 
 The ultimate goal is to transform DocuMind from a **document Q&A application** into an **AI-powered document operating system**.
 
@@ -1113,7 +1113,7 @@ Instead of simply returning text, DocuMind would orchestrate multiple AI capabil
 
 ---
 
-# 💡 Why This Project?
+# Why This Project?
 
 DocuMind combines several areas of modern software engineering and AI:
 
@@ -1139,7 +1139,7 @@ Applying service, repository, schema, and exception-handling patterns.
 
 ---
 
-# 📚 Key Concepts Demonstrated
+# Key Concepts Demonstrated
 
 This project demonstrates practical experience with:
 
@@ -1167,7 +1167,7 @@ This project demonstrates practical experience with:
 
 ---
 
-# 🤝 Contributing
+# Contributing
 
 Contributions, ideas, issues, and feature requests are welcome.
 
@@ -1195,7 +1195,7 @@ git push origin feature/my-feature
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 ## Ousama LASRI
 
@@ -1206,7 +1206,7 @@ https://github.com/Oussama-lasri
 
 ---
 
-# ⭐ Support
+# Support
 
 If you find DocuMind interesting, consider giving the repository a ⭐.
 
