@@ -5,7 +5,7 @@ from app.ai.rag.retriever import get_retriever
 
 
 @tool
-def search_documents(query: str, collection_name: str) -> str:
+def retrieve_documents(query: str, collection_name: str) -> str:
     """
     Search the user's uploaded documents for information relevant to the query.
     Use this whenever answering the question requires looking something up
