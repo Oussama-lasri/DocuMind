@@ -1,0 +1,32 @@
+diff --git a/backend/app/main.py b/backend/app/main.py
+index e59df9b..a7a6141 100644
+--- a/backend/app/main.py
++++ b/backend/app/main.py
+@@ -1,4 +1,5 @@
+ from fastapi import FastAPI
++from fastapi.middleware.cors import CORSMiddleware
+ 
+ from app.ai.rag.chain import get_documents_from_retriever
+ from app.api.v1.router import api_router
+@@ -23,8 +24,21 @@ from app.core.exception_handlers import (
+ )
+ 
+ app = FastAPI()
++
+ app.add_middleware(AuthMiddleware)
+ 
++# Added last so it sits outermost in the middleware stack: it must run
++# before AuthMiddleware, both to answer CORS preflight (OPTIONS) requests
++# and to attach CORS headers to error responses (e.g. 401s). Restrict
++# origins in production via an env var instead of hardcoding localhost.
++app.add_middleware(
++    CORSMiddleware,
++    allow_origins=["http://localhost:3000"],
++    allow_credentials=True,
++    allow_methods=["*"],
++    allow_headers=["*"],
++)
++
+ # create_tables()
+ 
+ 

@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+/*
+  DocuMind design tokens — "reading room" system.
+  Paper + ink neutrals, a single highlighter-amber accent standing in
+  for the mark of a pen on a page, a quiet verified-green and flag-red
+  for status. Serif for display (the document world), Plex Sans for
+  UI, Plex Mono reserved for real data: ids, scores, timestamps.
+*/
+:root {
+  --paper: #fbfaf6;
+  --paper-dim: #f1eee4;
+  --paper-inset: #eae6d8;
+  --ink: #1b2430;
+  --ink-dim: #57626c;
+  --ink-faint: #8b93964d;
+  --line: #ddd7c6;
+  --line-strong: #c9c1aa;
+  --mark: #c8801f;
+  --mark-strong: #a3691a;
+  --mark-dim: #f1deb2;
+  --mark-dim-2: #f8ecd2;
+  --verified: #3f7a5d;
+  --verified-dim: #dfeae2;
+  --flag: #ab4638;
+  --flag-dim: #f3ded9;
+  --radius: 0.375rem;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-paper-inset: var(--paper-inset);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-mark: var(--mark);
+  --color-mark-strong: var(--mark-strong);
+  --color-mark-dim: var(--mark-dim);
+  --color-mark-dim-2: var(--mark-dim-2);
+  --color-verified: var(--verified);
+  --color-verified-dim: var(--verified-dim);
+  --color-flag: var(--flag);
+  --color-flag-dim: var(--flag-dim);
+
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+  --font-sans: var(--font-plex-sans), "IBM Plex Sans", ui-sans-serif, sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+}
+
+* {
+  border-color: var(--line);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--mark-dim);
+  color: var(--ink);
+}
+
+/* thin, warm scrollbars instead of default chrome */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 2px solid var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
