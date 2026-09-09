@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+/*
+  DocuMind — NotebookLM-inspired studio system.
+  Cool slate surfaces, teal accent, soft mesh atmosphere.
+  Avoids cream/terracotta and purple SaaS defaults.
+*/
+:root {
+  --paper: #f5f7fa;
+  --paper-dim: #eef2f6;
+  --paper-inset: #e4eaf0;
+  --surface: #ffffff;
+  --ink: #0f172a;
+  --ink-dim: #64748b;
+  --ink-faint: #94a3b866;
+  --line: #d8e0ea;
+  --line-strong: #b8c4d4;
+  --mark: #0f766e;
+  --mark-strong: #0d5f59;
+  --mark-dim: #ccfbf1;
+  --mark-dim-2: #f0fdfa;
+  --verified: #047857;
+  --verified-dim: #d1fae5;
+  --flag: #be123c;
+  --flag-dim: #ffe4e6;
+  --glow: #5eead4;
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-paper-inset: var(--paper-inset);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-dim: var(--ink-dim);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-mark: var(--mark);
+  --color-mark-strong: var(--mark-strong);
+  --color-mark-dim: var(--mark-dim);
+  --color-mark-dim-2: var(--mark-dim-2);
+  --color-verified: var(--verified);
+  --color-verified-dim: var(--verified-dim);
+  --color-flag: var(--flag);
+  --color-flag-dim: var(--flag-dim);
+  --color-glow: var(--glow);
+
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+
+  --font-serif: var(--font-fraunces), "Fraunces", Georgia, serif;
+  --font-sans: var(--font-jakarta), "Plus Jakarta Sans", ui-sans-serif, sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+}
+
+* {
+  border-color: var(--line);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--mark-dim);
+  color: var(--ink);
+}
+
+.studio-mesh {
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(15, 118, 110, 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(14, 165, 233, 0.08), transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 100%, rgba(94, 234, 212, 0.06), transparent 55%),
+    var(--paper);
+}
+
+.panel-enter {
+  animation: panel-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 1.6s ease-in-out infinite;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
