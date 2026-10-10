@@ -193,6 +193,8 @@
           content: response.answer,
           sources: response.sources,
           agentUsed: response.agent_used,
+          downloadUrl: response.download_url,
+          downloadFilename: response.download_filename,
           createdAt: new Date().toISOString(),
         };
 
@@ -336,6 +338,13 @@
                       message.id === lastAssistantMessage?.id ? activeSourceIndex : null
                     }
                     onCiteClick={(i) => setActiveSourceIndex(i)}
+                    onDownload={(url, filename) => {
+                      void chatService.downloadReport(url, filename).catch((err) => {
+                        toast.error(
+                          err instanceof ApiError ? err.message : "Couldn't download this report."
+                        );
+                      });
+                    }}
                   />
                 ))}
                 {isSending && (

@@ -24,3 +24,5 @@ class ChatResponse(BaseModel):
     sources: List[Source] = []
     agent_used: Optional[str] = None
     processing_time: Optional[float] = None
+    download_url: Optional[str] = None
+    download_filename: Optional[str] = None

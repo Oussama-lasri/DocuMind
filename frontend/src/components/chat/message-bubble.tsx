@@ -1,4 +1,4 @@
-import { BookOpenText } from "lucide-react";
+import { BookOpenText, Download } from "lucide-react";
 import { cn, formatTime } from "@/utils/cn";
 import type { ChatMessage } from "@/utils/types";
 
@@ -6,9 +6,10 @@ interface MessageBubbleProps {
   message: ChatMessage;
   activeSourceIndex: number | null;
   onCiteClick: (index: number) => void;
+  onDownload: (url: string, filename: string) => void;
 }
 
-export function MessageBubble({ message, activeSourceIndex, onCiteClick }: MessageBubbleProps) {
+export function MessageBubble({ message, activeSourceIndex, onCiteClick, onDownload }: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   return (
@@ -41,6 +42,22 @@ export function MessageBubble({ message, activeSourceIndex, onCiteClick }: Messa
                 {i + 1}
               </button>
             ))}
+          </div>
+        )}
+
+        {!isUser && message.downloadUrl && (
+          <div className="mt-3 border-t border-line pt-3">
+            <button
+              type="button"
+              onClick={() => onDownload(
+                message.downloadUrl!,
+                message.downloadFilename || "documind-report.txt"
+              )}
+              className="inline-flex items-center gap-2 rounded-lg bg-mark-dim-2 px-3 py-2 text-sm font-medium text-mark-strong transition-colors hover:bg-mark-dim"
+            >
+              <Download className="h-4 w-4" />
+              Download {message.downloadFilename?.toLowerCase().includes("faq") ? "FAQ" : "report"}
+            </button>
           </div>
         )}
       </div>

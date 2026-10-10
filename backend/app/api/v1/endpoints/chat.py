@@ -1,6 +1,10 @@
+import json
 import traceback
+from pathlib import Path
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import FileResponse
 from langchain.messages import HumanMessage
 
 from app.schemas.chat import ChatRequest, ChatResponse
@@ -8,7 +12,7 @@ from app.utils.dependencies import get_current_user
 from assistant_stream import create_run
 from assistant_stream.serialization.data_stream import DataStreamResponse
 from app.ai.graph.graph import app as documind_graph
-import json
+from app.ai.tools.report_tool import REPORTS_DIR
 
 # from app.ai.graph.workflow import run_documind_workflow
 
@@ -53,10 +57,31 @@ async def chat_with_documents(
             )
         else:
             answer = str(content)
+        report = next(
+            (
+                message
+                for message in reversed(result.get("messages", []))
+                if getattr(message, "name", None) == "generate_report"
+            ),
+            None,
+        )
+        download_url = None
+        download_filename = None
+        if report:
+            try:
+                report_metadata = json.loads(report.content)
+                report_id = UUID(hex=report_metadata["report_id"]).hex
+                download_url = f"/api/v1/chat/reports/{report_id}"
+                download_filename = report_metadata["filename"]
+            except (ValueError, KeyError, TypeError, json.JSONDecodeError):
+                # A malformed tool response should not break the chat answer.
+                pass
         return ChatResponse(
                 answer=answer,
                 sources=result.get("sources", []),
                 agent_used=result.get("next_agent"),
+                download_url=download_url,
+                download_filename=download_filename,
             )
     except Exception as e:
         print("ERROR:", str(e))
@@ -66,6 +91,27 @@ async def chat_with_documents(
             status_code=500,
             detail=str(e)
         )
+
+
+@router.get("/reports/{report_id}")
+async def download_report(
+    report_id: str,
+    current_user=Depends(get_current_user),
+):
+    try:
+        safe_report_id = UUID(hex=report_id).hex
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    report_path = Path(REPORTS_DIR) / str(current_user.id) / f"{safe_report_id}.txt"
+    if not report_path.is_file():
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    return FileResponse(
+        path=report_path,
+        media_type="text/plain; charset=utf-8",
+        filename=f"report_{safe_report_id[:8]}.txt",
+    )
 
 
 @router.post("/chat2")

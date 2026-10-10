@@ -67,6 +67,8 @@ export interface ChatResponse {
   sources: Source[];
   agent_used?: string | null;
   processing_time?: number | null;
+  download_url?: string | null;
+  download_filename?: string | null;
 }
 
 export interface ChatMessage {
@@ -75,6 +77,8 @@ export interface ChatMessage {
   content: string;
   sources?: Source[];
   agentUsed?: string | null;
+  downloadUrl?: string | null;
+  downloadFilename?: string | null;
   createdAt: string;
 }
 
