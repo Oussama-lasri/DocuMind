@@ -211,6 +211,14 @@ This is the foundation of DocuMind's RAG system.
 
 ---
 
+# Web Search and URL Sources
+
+The chat interface has an early web-sources panel where you can enable web access and add URLs to a conversation. You can select or remove URLs alongside your uploaded documents.
+
+**Current status:** URL selection is available in the frontend, but web search and page retrieval are not yet connected to the backend. The current assistant does not fetch or cite web pages; answers are grounded in the selected uploaded documents. Full web retrieval is planned.
+
+---
+
 # Retrieval-Augmented Generation
 
 DocuMind separates **retrieval** from **generation**.
@@ -1025,6 +1033,7 @@ Run tests with:
 * [x] Vector retrieval
 * [x] Metadata filtering
 * [x] RAG pipeline
+* [ ] Web search and retrieval from selected URLs
 * [ ] Hybrid search
 * [ ] Reranking
 * [ ] Improved context compression
