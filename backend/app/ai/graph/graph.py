@@ -27,7 +27,8 @@ research_tool_node = ToolNode([
 ])
 
 action_tool_node = ToolNode([
-    report_tool.generate_report
+    retriever_tool.retrieve_documents,
+    report_tool.generate_report,
 ])
 
 
