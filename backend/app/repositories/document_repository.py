@@ -9,6 +9,13 @@ class DocumentRepository:
         return (
             self.db_session.query(Document).filter(Document.id == document_id).first()
         )
+        
+    def get_documents_by_user_id(self, user_id: int):
+        return (
+            self.db_session.query(Document)
+            .filter(Document.user_id == user_id)
+            .all()
+        )
 
     def create_document(self, document: Document):
         self.db_session.add(document)

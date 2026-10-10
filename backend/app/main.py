@@ -1,6 +1,7 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from app.ai.rag.chain import get_documents_from_retriever
+
 from app.api.v1.router import api_router
 from app.utils.init_db import create_tables
 from app.core.middleware import AuthMiddleware
@@ -13,6 +14,7 @@ from app.core.exceptions import (
     UnsupportedFileTypeError,
 )
 
+
 from app.core.exception_handlers import (
     document_error_handler,
     document_load_handler,
@@ -23,6 +25,23 @@ from app.core.exception_handlers import (
 )
 
 app = FastAPI()
+
+# origins = [
+#     # "http://localhost.tiangolo.com",
+#     # "https://localhost.tiangolo.com",
+#     # "http://localhost",
+#     "http://localhost:3000",
+#     # "http://localhost:8080",
+# ]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.add_middleware(AuthMiddleware)
 
 # create_tables()

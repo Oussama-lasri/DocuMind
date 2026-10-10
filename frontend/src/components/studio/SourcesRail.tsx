@@ -64,7 +64,7 @@ export function SourcesRail({
   const [query, setQuery] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const readyDocs = documents.filter((d) => d.status === "completed" || d.status === "processing");
+  const readyDocs = documents.filter((d) => d.status === "completed" || d.status === "processed");
   const filteredDocs = readyDocs.filter((doc) => {
     console.log("Filtering document:", doc.filename, "with query:", query)
     return doc.filename.toLowerCase().includes(query.trim().toLowerCase())

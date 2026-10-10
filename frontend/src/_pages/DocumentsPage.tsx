@@ -103,7 +103,9 @@ export default function DocumentsPage() {
     return documents.filter((d) => d.filename.toLowerCase().includes(q));
   }, [documents, query]);
 
-  const readyCount = documents.filter((d) => d.status === "processed").length;
+  const readyCount = documents.filter(
+    (d) => d.status === "completed" || d.status === "processed"
+  ).length;
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">

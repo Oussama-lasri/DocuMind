@@ -49,21 +49,15 @@ async def upload_documents(
 
 
 @router.get("/list", response_model=DocumentList)
-async def list_documents():
+async def list_documents(
+                                db: DbSession,
+                                current_user = Depends(get_current_user),
+):
     try:
-        # Here you would fetch the list of documents from the database
-        documents = [
-            DocumentResponse(
-                id="1",
-                filename="example.pdf",
-                upload_date=datetime.now(),
-                file_size=1024,
-                status="processed",
-            )
-        ]
-        return DocumentList(documents=documents, total=len(documents))
+        return document_service.document_list(db, current_user.id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 @router.get("/download/{document_id}")

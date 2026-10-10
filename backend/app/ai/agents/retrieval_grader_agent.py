@@ -11,7 +11,7 @@ class GradeDocuments(BaseModel):
     """Class for grading document."""
 
     binary_score: str = Field(
-        ..., description="Document relevant to qustion, 'yes' or 'No'"
+        ..., description="Document relevant to qustion, 'yes' or 'no"
     )
 
 

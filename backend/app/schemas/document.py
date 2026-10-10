@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel , ConfigDict
 
 
 class DocumentUpload(BaseModel):
@@ -11,11 +11,14 @@ class DocumentUpload(BaseModel):
 
 
 class DocumentResponse(BaseModel):
-    id: str
+    id: int
     filename: str
-    upload_date: datetime
     file_size: int
-    status: str = "processed"
+    status: str
+    user_id : int
+    created_at : datetime
+    updated_at : Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DocumentList(BaseModel):

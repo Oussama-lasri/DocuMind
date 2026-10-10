@@ -6,6 +6,7 @@ from app.core.database import DbSession
 from app.models.document import Document
 from app.repositories.document_repository import DocumentRepository
 from app.schemas.user import UserResponse
+from app.schemas.document import DocumentResponse, DocumentList
 from app.utils.document_processing_service import (
     DocumentProcessingService,
 )
@@ -202,3 +203,27 @@ class DocumentService:
             raise DocumentProcessingError(
                 "Failed to create document."
             ) from e
+            
+    def document_list(self, db: DbSession, user_id: int):
+            try:
+                repository = DocumentRepository(db)
+                list_of_documents = repository.get_documents_by_user_id(user_id)
+                
+
+                document_list = [
+                    DocumentResponse.model_validate(doc)
+                    for doc in list_of_documents
+                ]
+
+                return DocumentList(
+                    documents=document_list,
+                    total=len(document_list),
+                )
+            except Exception as e:
+                logger.exception(
+                    "Failed to retrieve document list for user_id=%s",
+                    user_id,
+                )
+                raise DocumentProcessingError(
+                    "Failed to retrieve document list."
+                ) from e

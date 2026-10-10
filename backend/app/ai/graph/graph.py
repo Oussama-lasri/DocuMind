@@ -23,7 +23,7 @@ ACTION_TOOLS = "action_tools"
 # -------------------------
 
 research_tool_node = ToolNode([
-    retriever_tool.search_documents
+    retriever_tool.retrieve_documents
 ])
 
 action_tool_node = ToolNode([
@@ -124,30 +124,30 @@ app = workflow.compile()
 app.get_graph().draw_mermaid_png(
     output_file_path="graph.png"
 )
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # result = app.invoke({
-    #     "messages": [
-    #         {
-    #             "role": "user",
-    #             "content": "Search my documents for information about LangGraph"
-    #         }
-    #     ]
-    # })
+#     # result = app.invoke({
+#     #     "messages": [
+#     #         {
+#     #             "role": "user",
+#     #             "content": "Search my documents for information about LangGraph"
+#     #         }
+#     #     ]
+#     # })
     
-    result = app.invoke({
-        "messages": [
-            {
-                "role": "user",
-                "content": (
-                    "Generate a report with blank content. "
-                    "The report should summarize the main information "
-                    "and highlight the most important points."
-                )
-            }
-        ]
-    })
+#     result = app.invoke({
+#         "messages": [
+#             {
+#                 "role": "user",
+#                 "content": (
+#                     "Generate a report with blank content. "
+#                     "The report should summarize the main information "
+#                     "and highlight the most important points."
+#                 )
+#             }
+#         ]
+#     })
 
-    for message in result["messages"]:
-        print("\n--- MESSAGE ---")
-        print(message)
+#     for message in result["messages"]:
+#         print("\n--- MESSAGE ---")
+#         print(message)

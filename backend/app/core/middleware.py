@@ -18,6 +18,10 @@ _jwt_service = JwtService()
 class AuthMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request, call_next):
+        
+        if request.method == "OPTIONS":
+            return await call_next(request)
+        
         # Skip authentication for public paths
         if request.url.path in PUBLIC_PATHS:
             print("Public path accessed:", request.url.path)

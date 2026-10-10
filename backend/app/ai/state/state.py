@@ -8,3 +8,5 @@ class GraphState(MessagesState):
     documents: Annotated[List[dict], operator.add]
     language: str
     next_agent: str                                  
+    user_id: int
+    document_ids: List[int]

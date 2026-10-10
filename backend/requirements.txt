@@ -27,3 +27,4 @@ python-multipart
 jwt
 pyjwt
 pypdf
+assistant-stream

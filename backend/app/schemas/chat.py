@@ -8,6 +8,9 @@ class ChatRequest(BaseModel):
     user_id: str
     session_id: Optional[str] = None
     temperature: Optional[float] = 0.7
+    document_ids: Optional[List[int]] = None
+    use_web: Optional[bool] = False
+    web_urls: Optional[List[str]] = None
 
 
 class Source(BaseModel):

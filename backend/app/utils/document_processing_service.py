@@ -348,6 +348,7 @@ class DocumentProcessingService:
         query_text: str,
         user_id: int,
         document_id: int = None,
+        document_ids: List[int] = None,
         k: int = 5
     ):
 
@@ -365,12 +366,22 @@ class DocumentProcessingService:
 
             store = self.get_store()
 
-            filters = {
-                "user_id": user_id
-            }
-
-            if document_id is not None:
-                filters["document_id"] = document_id
+            if document_ids:
+                filters = {
+                    "$and": [
+                        {"user_id": user_id},
+                        {"document_id": {"$in": document_ids}},
+                    ]
+                }
+            elif document_id is not None:
+                filters = {
+                    "$and": [
+                        {"user_id": user_id},
+                        {"document_id": document_id},
+                    ]
+                }
+            else:
+                filters = {"user_id": user_id}
 
             documents = store.similarity_search(
                 query_text,

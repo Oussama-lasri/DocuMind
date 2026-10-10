@@ -55,29 +55,44 @@
       if (user && sessions.length > 0) saveSessions(user.id, sessions);
     }, [user, sessions]);
 
-    async function loadDocuments() {
+    async function loadDocuments(isActive: () => boolean = () => true) {
       setDocsLoading(true);
       try {
         const res = await documentService.listDocuments();
-        console.log("Loaded documents:", res.documents);
+        if (!isActive()) return;
         setDocuments(res.documents);
+        const readyIds = new Set(
+          res.documents
+            .filter((d) => d.status === "completed" || d.status === "processed")
+            .map((d) => d.id)
+        );
         setSelectedIds((prev) => {
-          if (prev.size > 0) return prev;
-          return new Set(
-            res.documents.filter((d) => d.status === "processed").map((d) => d.id)
-          );
+          const stillAvailable = [...prev].filter((id) => readyIds.has(id));
+          return new Set(stillAvailable.length > 0 ? stillAvailable : readyIds);
         });
       } catch {
-        toast.error("Couldn't load your sources.");
+        if (isActive()) toast.error("Couldn't load your sources.");
       } finally {
-        setDocsLoading(false);
+        if (isActive()) setDocsLoading(false);
       }
     }
 
     useEffect(() => {
+      if (!user) return;
+
+      // A new account must never briefly see the previous account's sources.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      loadDocuments();
-    }, []);
+      setDocuments([]);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedIds(new Set());
+      let active = true;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void loadDocuments(() => active);
+      return () => {
+        active = false;
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id]);
 
     const activeSession = useMemo(
       () => sessions.find((s) => s.id === activeId) ?? null,
@@ -170,6 +185,7 @@
           use_web: useWeb || selectedWebUrls.length > 0,
           web_urls: selectedWebUrls.length ? selectedWebUrls : null,
         });
+        
 
         const assistantMessage: ChatMessage = {
           id: crypto.randomUUID(),
@@ -211,7 +227,11 @@
           }}
           onSelectAll={() =>
             setSelectedIds(
-              new Set(documents.filter((d) => d.status === "processed").map((d) => d.id))
+              new Set(
+                documents
+                  .filter((d) => d.status === "completed" || d.status === "processed")
+                  .map((d) => d.id)
+              )
             )
           }
           onClearAll={() => setSelectedIds(new Set())}
